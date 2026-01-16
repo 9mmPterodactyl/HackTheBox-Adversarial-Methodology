@@ -2,12 +2,13 @@
 
 **by 9mmpterodactyl**
 
-How I approach compromising HTB machines. Enumerate, exploit, escalate.
+## Purpose and Scope
 
-**Current Stats:**
-- Global Rank: #707 (Top 0.03%)
-- Season 9 Rank: Ruby #1681
-- Machines Solved: 21 (55 flags captured)
+This repository documents my Hack The Box methodology, which is intentionally focused on adversarial system compromise rather than professional penetration testing. HTB machines are treated as hostile environments with no imposed scope beyond achieving initial access and escalating privileges to full system compromise.
+
+The goal of this methodology is to develop and demonstrate an attacker’s mindset: identifying viable entry points, chaining weaknesses, and persisting through incomplete information until root access is achieved. Considerations such as reporting completeness, service stability, or business impact are intentionally deprioritized in favor of technical depth and exploitation efficiency.
+
+This methodology is not intended to represent how I conduct scoped, client-authorized penetration tests. It exists to capture how I approach systems when operating from a purely offensive perspective, where the objective is total compromise rather than structured assessment.
 
 ---
 
@@ -29,11 +30,15 @@ Find version numbers. Check for known CVEs. Look for anything unusual.
 
 ### Initial Access
 
-Figure out the entry point and exploit it.
+Figure out the entry point and exploit it. This is where my skills as a web application hacker and bug bounty hunter come in, as i use my web-application-testing-methodology here to find critical 
 
-Common vectors: web vulnerabilities (SQLi, command injection, file upload, LFI/RFI, template injection), service exploits for specific versions, default credentials, misconfigurations.
+vulnerabilities that can be used to gain access to the system. Our initial foothold into HTB systems usually is a busybox shell or a meterpreter shell, and we will need to stablize the shell for best performance.
 
-Get a reverse shell, stabilize it:
+All though, sometimes the initial foothold is using a critical vuln to dump info from backend tables that reveal credentials, sometimes giving a path to use SSH to login to the machine. 
+
+**Common vectors** : web vulnerabilities (SQLi, command injection, file upload, LFI/RFI, template injection), service exploits for specific versions, default credentials, misconfigurations.
+
+Get a reverse shell, stabilize it if necassary (example stablization script in python):
 ```bash
 python -c 'import pty; pty.spawn("/bin/bash")'
 ```
@@ -48,7 +53,7 @@ Once in as low-privilege user, enumerate the system.
 - Search for credentials in config files, bash history, databases
 
 **Windows:**
-- WinPEAS for enumeration
+- WinPEAS for automated enumeration
 - Token impersonation (very common)
 - Service misconfigurations, scheduled tasks
 - Credential hunting in registry and config files
@@ -62,9 +67,13 @@ Once in as low-privilege user, enumerate the system.
 
 ### When Stuck
 
-Go back and enumerate more. Check what you missed. Try the simple things - default credentials, obvious misconfigurations, checking sudo -l right after getting a shell.
+Go back and enumerate more. Check what you missed. If still testing for Web Vulns and a way in, make sure you go through the OWASP Top 10 when trying to find that initial crack in the armor.
 
-Most solutions are simpler than they seem at first.
+Most easy machines you can find a critical CVE affecting the machine with a nuclei scan, but medium, hard, and insane machines require a deep understanding of the OWASP Top 10 and a solid web testing methodology. 
+
+Dont overlook downloadable source code from machines. this is gold for writing custom exploits. For example, in a machine I recently did, after donwloading the source code for website that allowed users to upload browser extensions, I can actually see in the source code how one can chain an SSRF vuln with a command injection vuln to gain access. 
+
+Once a reverse shell is established, try the simple things - default credentials, obvious misconfigurations, checking sudo -l right after getting a shell.
 
 ---
 
@@ -74,10 +83,10 @@ Most solutions are simpler than they seem at first.
 Nmap, Gobuster, ffuf, Nuclei, various subdomain/DNS tools
 
 **Web Testing:**
-Burp Suite, SQLmap, custom Python scripts
+Burp Suite, SQLmap, custom Python scripts, Metasploit
 
 **Exploitation:**
-Metasploit, Searchsploit/ExploitDB, custom exploits from GitHub, Netcat
+Metasploit, Searchsploit/ExploitDB, custom exploits written by me or from GitHub and/or Claude, Netcat, python HTTP server,
 
 **Post-Exploitation:**
 LinPEAS, WinPEAS, BloodHound, Mimikatz, enumeration scripts
@@ -108,7 +117,7 @@ Enumeration is everything. When stuck, enumerate more.
 
 Version numbers matter - specific versions have known exploits.
 
-Check the simple stuff first - default credentials, sudo -l immediately after shell access, obvious misconfigurations.
+Check the simple stuff first - software versions with known vulerabilities, default credentials, sudo -l immediately after shell access, obvious misconfigurations.
 
 Take notes. Easy to forget what you already tried.
 
