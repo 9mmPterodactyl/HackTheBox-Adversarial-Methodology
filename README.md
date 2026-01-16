@@ -1,4 +1,4 @@
-# HackTheBox Penetration Testing Methodology
+# HackTheBox Adversarial Methodology
 
 **by 9mmpterodactyl**
 
